@@ -60,13 +60,13 @@ pipeline {
             }
             steps{
                 script{
-                    try{
-                        'curl $KUBE_NODE_IP:8081'
-                        echo 'Web request passed'
-                    }
-                    catch(all){
-                        echo 'Test failed'
+                    webrequest = httpRequest(
+                        url: "http://$KUBE_NODE_IP:8081",
+                        timeout: 30
+                    )
+                    if (webrequest.status != 200){
                         TEST_STATE = false
+                    }
                     }
                 }
             }
