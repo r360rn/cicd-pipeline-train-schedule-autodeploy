@@ -1,8 +1,9 @@
 pipeline {
     agent any
     environment {
-        //be sure to replace "willbla" with your own Docker Hub username
         DOCKER_IMAGE_NAME = "reb0rn/testing"
+        KUBE_NODE_IP = '3.216.27.73'
+        TEST_STATE = true
     }
     stages {
         stage('Build') {
@@ -53,6 +54,22 @@ pipeline {
                 )
             }
         }
+        stage('Smoke Test'){
+            when{
+                branch 'master'
+            }
+            steps{
+                script{
+                    try{
+                        'curl $KUBE_NODE_IP:8081'
+                    }
+                    catch{
+                        echo 'Test failed'
+                        TEST_STATE = false
+                    }
+                }
+            }
+        }
         stage('DeployToProduction') {
             when {
                 branch 'master'
@@ -61,8 +78,7 @@ pipeline {
                 CANARY_REPLICAS = 0
             }
             steps {
-                input 'Deploy to Production?'
-                milestone(1)
+                if (TEST_STATE) {
                 kubernetesDeploy(
                     kubeconfigId: 'kubeconfig',
                     configs: 'train-schedule-kube-canary.yml',
@@ -73,6 +89,7 @@ pipeline {
                     configs: 'train-schedule-kube.yml',
                     enableConfigSubstitution: true
                 )
+                }
             }
         }
     }
