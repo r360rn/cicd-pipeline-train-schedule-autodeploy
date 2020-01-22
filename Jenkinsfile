@@ -3,7 +3,6 @@ pipeline {
     environment {
         DOCKER_IMAGE_NAME = "reb0rn/testing"
         KUBE_NODE_IP = '3.216.27.73'
-        TEST_STATE = true
     }
     stages {
         stage('Build') {
@@ -65,7 +64,7 @@ pipeline {
                         timeout: 30
                     )
                     if (webrequest.status != 200){
-                        TEST_STATE = false
+                        error('Test failed')
                     }
                     }
                 }
@@ -79,7 +78,6 @@ pipeline {
             }
             steps {
                 script{
-                    if (TEST_STATE) {
                         kubernetesDeploy(
                             kubeconfigId: 'kubeconfig',
                             configs: 'train-schedule-kube-canary.yml',
@@ -90,7 +88,6 @@ pipeline {
                             configs: 'train-schedule-kube.yml',
                             enableConfigSubstitution: true
                         )
-                }
                 }
             }
         }
