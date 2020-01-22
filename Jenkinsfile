@@ -64,7 +64,7 @@ pipeline {
                         'curl $KUBE_NODE_IP:8081'
                         echo 'Web request passed'
                     }
-                    catch{
+                    catch(all){
                         echo 'Test failed'
                         TEST_STATE = false
                     }
