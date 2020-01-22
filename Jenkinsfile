@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_IMAGE_NAME = "reb0rn/testing"
-        KUBE_NODE_IP = '3.216.27.73'
+        KUBE_NODE_IP = '3.86.246.0'
     }
     stages {
         stage('Build') {
